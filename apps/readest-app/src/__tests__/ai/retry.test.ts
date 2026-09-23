@@ -1,5 +1,11 @@
 import { describe, test, expect, vi } from 'vitest';
-import { withRetry, withTimeout, AI_TIMEOUTS, AI_RETRY_CONFIGS } from '@/services/ai/utils/retry';
+import {
+  withRetry,
+  withTimeout,
+  isNonRetryableError,
+  AI_TIMEOUTS,
+  AI_RETRY_CONFIGS,
+} from '@/services/ai/utils/retry';
 
 describe('withRetry', () => {
   test('should return result on first success', async () => {
@@ -90,5 +96,36 @@ describe('AI_RETRY_CONFIGS', () => {
     expect(AI_RETRY_CONFIGS.EMBEDDING.maxRetries).toBe(3);
     expect(AI_RETRY_CONFIGS.CHAT.maxRetries).toBe(2);
     expect(AI_RETRY_CONFIGS.HEALTH_CHECK.maxRetries).toBe(1);
+  });
+});
+
+describe('isNonRetryableError', () => {
+  test('treats a rejected payload as final', () => {
+    expect(
+      isNonRetryableError(
+        new Error(
+          "All upstream providers failed: compass: Invalid 'input': maximum request size is 300000 tokens per request.",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test('treats rate limits and gateway errors as retryable', () => {
+    expect(isNonRetryableError(new Error('429 Too Many Requests'))).toBe(false);
+    expect(isNonRetryableError(new Error('503 Service Unavailable'))).toBe(false);
+    expect(isNonRetryableError(new Error('network timeout'))).toBe(false);
+  });
+});
+
+describe('withRetry non-retryable errors', () => {
+  test('fails fast instead of repeating a request the server already rejected', async () => {
+    const fn = vi
+      .fn()
+      .mockRejectedValue(new Error("Invalid 'input': maximum request size is 300000 tokens"));
+
+    await expect(withRetry(fn, { maxRetries: 3, baseDelayMs: 1, maxDelayMs: 5 })).rejects.toThrow(
+      'maximum request size',
+    );
+    expect(fn).toHaveBeenCalledTimes(1);
   });
 });

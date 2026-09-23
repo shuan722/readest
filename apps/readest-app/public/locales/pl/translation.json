@@ -2576,5 +2576,13 @@
   "Create New Tag": "Utwórz nowy tag",
   "Tag name": "Nazwa tagu",
   "No tags yet": "Brak tagów",
-  "Failed to save note. Please try again.": "Nie udało się zapisać notatki. Spróbuj ponownie."
+  "Failed to save note. Please try again.": "Nie udało się zapisać notatki. Spróbuj ponownie.",
+  "Indexing failed": "Indeksowanie nie powiodło się",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% jest już zaindeksowane. Ponowna próba będzie kontynuowana od tego miejsca.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Punkt końcowy obsługujący tylko czat może działać bez osadzania. Pozostaw pole Model osadzania puste i spróbuj ponownie.",
+  "Resume Indexing": "Wznów indeksowanie",
+  "Retry Indexing": "Ponów indeksowanie",
+  "Indexing Unfinished": "Indeksowanie niezakończone",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Przed indeksowaniem skonfiguruj klucz API zgodny z OpenAI w ustawieniach",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% jest już zaindeksowane. Indeksowanie będzie kontynuowane od tego miejsca."
 }

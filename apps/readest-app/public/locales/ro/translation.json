@@ -2516,5 +2516,13 @@
   "Create New Tag": "Creați o etichetă nouă",
   "Tag name": "Numele etichetei",
   "No tags yet": "Încă nu există etichete",
-  "Failed to save note. Please try again.": "Nota nu a putut fi salvată. Încercați din nou."
+  "Failed to save note. Please try again.": "Nota nu a putut fi salvată. Încercați din nou.",
+  "Indexing failed": "Indexarea a eșuat",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% este deja indexat. Reîncercarea continuă de acolo.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Un endpoint doar pentru chat poate funcționa fără încorporări. Lasă câmpul Model de încorporare (Embedding) gol și reîncearcă.",
+  "Resume Indexing": "Reia indexarea",
+  "Retry Indexing": "Reîncearcă indexarea",
+  "Indexing Unfinished": "Indexare neterminată",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Configurează cheia API compatibilă OpenAI în Setări înainte de indexare",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% este deja indexat. Se continuă de acolo."
 }

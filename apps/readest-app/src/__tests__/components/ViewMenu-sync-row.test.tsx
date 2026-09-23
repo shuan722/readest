@@ -21,6 +21,8 @@ let mockSyncStatus = {
   label: 'Synced 2 minutes ago',
 };
 
+let mockAnonymousBuild = false;
+
 const mockBookData = {
   isFixedLayout: false,
   bookDoc: {
@@ -78,6 +80,9 @@ vi.mock('@/hooks/useResponsiveSize', () => ({ useResponsiveSize: (n: number) => 
 vi.mock('@/hooks/useCloudSyncStatus', () => ({
   useCloudSyncStatus: () => mockSyncStatus,
 }));
+vi.mock('@/services/environment', () => ({
+  isAnonymousBuild: () => mockAnonymousBuild,
+}));
 vi.mock('@/helpers/settings', () => ({ saveViewSettings: vi.fn() }));
 vi.mock('@/services/constants', () => ({
   MAX_ZOOM_LEVEL: 200,
@@ -103,6 +108,7 @@ const ViewMenu = (await import('@/app/reader/components/ViewMenu')).default;
 describe('ViewMenu sync row (issue #5910)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAnonymousBuild = false;
     mockSyncStatus = {
       providers: [
         { kind: 'webdav', name: 'WebDAV', lastSyncedAt: 1, syncing: false, failed: false },
@@ -116,6 +122,25 @@ describe('ViewMenu sync row (issue #5910)', () => {
   });
 
   afterEach(() => cleanup());
+
+  it('hides account sync and sharing in anonymous personal builds', () => {
+    mockAnonymousBuild = true;
+    mockSyncStatus = {
+      providers: [
+        { kind: 'readest', name: 'Readest Cloud', lastSyncedAt: 0, syncing: false, failed: false },
+      ],
+      syncing: false,
+      failed: false,
+      lastSyncedAt: 0,
+      needsSignIn: true,
+      label: 'Sign in to Sync',
+    };
+
+    render(<ViewMenu bookKey='book-1' />);
+
+    expect(screen.queryByText('Sign in to Sync')).toBeNull();
+    expect(screen.queryByText('Share Book')).toBeNull();
+  });
 
   it('shows the third-party status instead of "Never synced" with no account', () => {
     render(<ViewMenu bookKey='book-1' />);

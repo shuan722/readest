@@ -2456,5 +2456,13 @@
   "Create New Tag": "Δημιουργία νέας ετικέτας",
   "Tag name": "Όνομα ετικέτας",
   "No tags yet": "Δεν υπάρχουν ακόμη ετικέτες",
-  "Failed to save note. Please try again.": "Αποτυχία αποθήκευσης σημείωσης. Δοκιμάστε ξανά."
+  "Failed to save note. Please try again.": "Αποτυχία αποθήκευσης σημείωσης. Δοκιμάστε ξανά.",
+  "Indexing failed": "Η δημιουργία ευρετηρίου απέτυχε",
+  "{{percent}}% is already indexed. Retrying continues from there.": "Το {{percent}}% έχει ήδη ευρετηριαστεί. Η επανάληψη συνεχίζει από εκεί.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Ένα τελικό σημείο μόνο για συνομιλία μπορεί να λειτουργήσει χωρίς ενσωματώσεις. Αφήστε κενό το Μοντέλο ενσωμάτωσης και δοκιμάστε ξανά.",
+  "Resume Indexing": "Συνέχιση δημιουργίας ευρετηρίου",
+  "Retry Indexing": "Επανάληψη δημιουργίας ευρετηρίου",
+  "Indexing Unfinished": "Ημιτελής δημιουργία ευρετηρίου",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Ρυθμίστε το συμβατό με OpenAI κλειδί API στις Ρυθμίσεις πριν από τη δημιουργία ευρετηρίου",
+  "{{percent}}% is already indexed. Continue from there.": "Το {{percent}}% έχει ήδη ευρετηριαστεί. Η διαδικασία συνεχίζει από εκεί."
 }

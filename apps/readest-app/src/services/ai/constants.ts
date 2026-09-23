@@ -21,11 +21,11 @@ export const MODEL_PRICING: Record<string, { input: string; output: string }> = 
 
 export const DEFAULT_AI_SETTINGS: AISettings = {
   enabled: false,
-  provider: 'ollama',
+  provider: 'openrouter',
 
-  ollamaBaseUrl: 'http://127.0.0.1:11434',
-  ollamaModel: 'llama3.2',
-  ollamaEmbeddingModel: 'nomic-embed-text',
+  ollamaBaseUrl: '',
+  ollamaModel: '',
+  ollamaEmbeddingModel: '',
 
   aiGatewayModel: 'google/gemini-2.5-flash-lite',
   aiGatewayEmbeddingModel: 'openai/text-embedding-3-small',

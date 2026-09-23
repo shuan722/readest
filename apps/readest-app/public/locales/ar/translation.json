@@ -2696,5 +2696,13 @@
   "Create New Tag": "إنشاء علامة جديدة",
   "Tag name": "اسم العلامة",
   "No tags yet": "لا توجد علامات بعد",
-  "Failed to save note. Please try again.": "تعذّر حفظ الملاحظة. يرجى المحاولة مرة أخرى."
+  "Failed to save note. Please try again.": "تعذّر حفظ الملاحظة. يرجى المحاولة مرة أخرى.",
+  "Indexing failed": "فشلت الفهرسة",
+  "{{percent}}% is already indexed. Retrying continues from there.": "تمت فهرسة {{percent}}% بالفعل. ستُستأنف إعادة المحاولة من هناك.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "يمكن لنقطة نهاية المحادثة فقط أن تعمل بدون التضمينات. اترك نموذج التضمين فارغًا وأعد المحاولة.",
+  "Resume Indexing": "استئناف الفهرسة",
+  "Retry Indexing": "إعادة محاولة الفهرسة",
+  "Indexing Unfinished": "الفهرسة غير مكتملة",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "قم بتكوين مفتاح API المتوافق مع OpenAI في الإعدادات قبل الفهرسة",
+  "{{percent}}% is already indexed. Continue from there.": "تمت فهرسة {{percent}}% بالفعل. ستُستأنف من هناك."
 }

@@ -20,6 +20,7 @@ onlyBuiltDependencies:
 
 patchedDependencies:
   '@ai-sdk/provider-utils@4.0.27': patches/@ai-sdk__provider-utils@4.0.27.patch
+  '@assistant-ui/react@0.11.58': patches/@assistant-ui__react@0.11.58.patch
   mdast-util-gfm-autolink-literal@2.0.1: patches/mdast-util-gfm-autolink-literal@2.0.1.patch
 
 overrides:

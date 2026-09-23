@@ -2396,5 +2396,13 @@
   "Create New Tag": "建立新標籤",
   "Tag name": "標籤名稱",
   "No tags yet": "尚無標籤",
-  "Failed to save note. Please try again.": "筆記儲存失敗，請重試。"
+  "Failed to save note. Please try again.": "筆記儲存失敗，請重試。",
+  "Indexing failed": "索引失敗",
+  "{{percent}}% is already indexed. Retrying continues from there.": "已索引 {{percent}}%，重試將從此處繼續。",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "僅支援對話的端點無需嵌入也能運作。將嵌入模型留空後重試。",
+  "Resume Indexing": "繼續索引",
+  "Retry Indexing": "重試索引",
+  "Indexing Unfinished": "索引未完成",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "索引前請在設定中設定相容 OpenAI 的 API 金鑰",
+  "{{percent}}% is already indexed. Continue from there.": "已索引 {{percent}}%，將從此處繼續。"
 }

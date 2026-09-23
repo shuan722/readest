@@ -17,6 +17,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { LibraryCoverFitType, LibraryViewModeType } from '@/types/settings';
 import { navigateToLogin } from '@/utils/nav';
+import { isAnonymousBuild } from '@/services/environment';
 import { isReadestCloudStorageActive } from '@/services/sync/cloudSyncProvider';
 import { isFeedBook } from '@/services/rss/feedBookUrl';
 import { isAudiobook } from '@/utils/audiobook';
@@ -302,6 +303,7 @@ const BookItem: React.FC<BookItemProps> = ({
                 // Same for an ABS book: it streams from the server and never has
                 // uploadedAt/downloadedAt set, so without this check the badge
                 // would render forever and Upload would always fail.
+                !isAnonymousBuild() &&
                 !isFeedBook(book) &&
                 !isAudiobook(book) &&
                 (!book.uploadedAt || (book.uploadedAt && !book.downloadedAt)) && (

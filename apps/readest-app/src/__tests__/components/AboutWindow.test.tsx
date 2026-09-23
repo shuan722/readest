@@ -24,7 +24,7 @@ vi.mock('@/hooks/useTranslation', () => ({
 }));
 
 vi.mock('@/context/EnvContext', () => ({
-  useEnv: () => ({ appService: { hasUpdater: true } }),
+  useEnv: () => ({ appService: { hasUpdater: false } }),
 }));
 
 vi.mock('@/store/settingsStore', () => ({
@@ -162,5 +162,11 @@ describe('AboutWindow version label', () => {
 
     expect(label.tagName).toBe('BUTTON');
     expect(label.getAttribute('title')).toBe('Copy');
+  });
+
+  it('hides the official update action when the updater is disabled', async () => {
+    await openDialog();
+
+    expect(screen.queryByText('Check Update')).toBeNull();
   });
 });

@@ -138,13 +138,16 @@ fn read_json_string_field(path: &Path, key: &str) -> Option<String> {
 /// in the developer's shell.
 fn propagate_sentry_dsn() {
     println!("cargo:rerun-if-env-changed=SENTRY_DSN");
+    println!("cargo:rerun-if-env-changed=NEXT_PUBLIC_ANONYMOUS_BUILD");
     let app_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("..");
     let env_local = app_dir.join(".env.local");
     let env_file = app_dir.join(".env");
     println!("cargo:rerun-if-changed={}", env_local.display());
     println!("cargo:rerun-if-changed={}", env_file.display());
 
-    if env::var("PROFILE").as_deref() != Ok("release") {
+    if env::var("PROFILE").as_deref() != Ok("release")
+        || env::var("NEXT_PUBLIC_ANONYMOUS_BUILD").as_deref() == Ok("true")
+    {
         println!("cargo:rustc-env=SENTRY_DSN=");
         return;
     }

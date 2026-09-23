@@ -2396,5 +2396,13 @@
   "Create New Tag": "새 태그 만들기",
   "Tag name": "태그 이름",
   "No tags yet": "아직 태그가 없습니다",
-  "Failed to save note. Please try again.": "노트를 저장하지 못했습니다. 다시 시도해 주세요."
+  "Failed to save note. Please try again.": "노트를 저장하지 못했습니다. 다시 시도해 주세요.",
+  "Indexing failed": "인덱싱 실패",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}%가 이미 인덱싱되었습니다. 다시 시도하면 이어서 진행합니다.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "채팅 전용 엔드포인트는 임베딩 없이도 작동합니다. 임베딩 모델을 비워 두고 다시 시도하세요.",
+  "Resume Indexing": "인덱싱 이어하기",
+  "Retry Indexing": "인덱싱 다시 시도",
+  "Indexing Unfinished": "인덱싱 미완료",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "인덱싱 전에 설정에서 OpenAI 호환 API 키를 구성하세요",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}%가 이미 인덱싱되었습니다. 이어서 진행합니다."
 }

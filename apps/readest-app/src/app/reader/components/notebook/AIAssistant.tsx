@@ -33,7 +33,7 @@ import { ReedyAssistant } from '@/services/reedy/ui/ReedyAssistant';
 import type { ReadingContextSnapshot } from '@/services/reedy/tools/builtins/types';
 
 import { Button } from '@/components/ui/button';
-import { Loader2Icon, BookOpenIcon } from 'lucide-react';
+import { AlertTriangleIcon, Loader2Icon, BookOpenIcon, RotateCwIcon } from 'lucide-react';
 import { Thread } from '@/components/assistant/Thread';
 
 // Helper function to convert AIMessage array to ExportedMessageRepository format
@@ -320,6 +320,8 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   const [isIndexing, setIsIndexing] = useState(false);
   const [indexProgress, setIndexProgress] = useState<EmbeddingProgress | null>(null);
   const [indexed, setIndexed] = useState(false);
+  const [indexError, setIndexError] = useState<string | null>(null);
+  const [resumePoint, setResumePoint] = useState<{ embedded: number; total: number } | null>(null);
   const [currentTurnId, setCurrentTurnId] = useState<string | null>(null);
 
   const bookHash = bookKey.split('-')[0] || '';
@@ -327,6 +329,8 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   const authorName = bookData?.book?.author || '';
   const currentPage = progress?.pageinfo?.current ?? 0;
   const aiSettings = settings?.aiSettings;
+  const hasProviderCredentials =
+    aiSettings?.provider !== 'openrouter' || Boolean(aiSettings.openrouterApiKey);
 
   // Per-instance source store, plus the active backend chosen via the same
   // selectBackend gate the chat adapter will hit (Reedy on Tauri when
@@ -345,8 +349,12 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   // check if book is indexed on mount
   useEffect(() => {
     if (bookHash && backend) {
-      backend.isIndexed(bookHash).then((result) => {
+      Promise.all([
+        backend.isIndexed(bookHash),
+        backend.getResumePoint?.(bookHash) ?? Promise.resolve(null),
+      ]).then(([result, resume]) => {
         setIndexed(result);
+        setResumePoint(resume);
         setIsLoading(false);
       });
     } else if (!backend) {
@@ -359,22 +367,31 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   const handleIndex = useCallback(async () => {
     if (!bookData?.bookDoc || !aiSettings || !backend) return;
     setIsIndexing(true);
+    setIndexError(null);
     try {
       await backend.indexBook(bookData.bookDoc, bookHash, { onProgress: setIndexProgress });
       setIndexed(true);
+      setResumePoint(null);
     } catch (e) {
-      aiLogger.rag.indexError(bookHash, (e as Error).message);
+      const message = e instanceof Error ? e.message : String(e);
+      aiLogger.rag.indexError(bookHash, message);
+      setIndexError(message);
+      // Whatever the run managed to embed is checkpointed, so read it back
+      // and let the retry copy say where it will pick up.
+      setResumePoint((await backend.getResumePoint?.(bookHash)) ?? null);
     } finally {
       setIsIndexing(false);
       setIndexProgress(null);
     }
-  }, [bookData?.bookDoc, bookHash, aiSettings]);
+  }, [bookData?.bookDoc, bookHash, aiSettings, backend]);
 
   const handleResetIndex = useCallback(async () => {
     if (!appService || !backend) return;
     if (!(await appService.ask(_('Are you sure you want to re-index this book?')))) return;
     await backend.clearBook(bookHash);
     setIndexed(false);
+    setIndexError(null);
+    setResumePoint(null);
   }, [bookHash, appService, backend, _]);
 
   // Navigate the reader to a clicked source's CFI. Legacy backend chunks have
@@ -406,6 +423,42 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
       ? Math.round((indexProgress.current / indexProgress.total) * 100)
       : 0;
 
+  // Work an interrupted run already checkpointed. Retrying continues from
+  // here instead of re-embedding the book, so say so.
+  const resumePercent = resumePoint
+    ? Math.round((resumePoint.embedded / resumePoint.total) * 100)
+    : 0;
+
+  if (indexError && !isIndexing) {
+    return (
+      <div className='flex h-full flex-col items-center justify-center gap-3 p-4 text-center'>
+        <div className='bg-warning/10 rounded-full p-3'>
+          <AlertTriangleIcon className='text-warning size-6' />
+        </div>
+        <div>
+          <h3 className='text-foreground mb-0.5 text-sm font-medium'>{_('Indexing failed')}</h3>
+          <p className='text-muted-foreground max-w-sm text-xs'>{indexError}</p>
+          {resumePoint ? (
+            <p className='text-muted-foreground mt-2 max-w-sm text-xs'>
+              {_('{{percent}}% is already indexed. Retrying continues from there.', {
+                percent: resumePercent,
+              })}
+            </p>
+          ) : null}
+          <p className='text-muted-foreground mt-2 max-w-sm text-xs'>
+            {_(
+              'A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.',
+            )}
+          </p>
+        </div>
+        <Button onClick={handleIndex} size='sm' variant='outline' className='h-8 text-xs'>
+          <RotateCwIcon className='mr-1.5 size-3.5' />
+          {resumePoint ? _('Resume Indexing') : _('Retry Indexing')}
+        </Button>
+      </div>
+    );
+  }
+
   if (!indexed && !isIndexing) {
     return (
       <div className='flex h-full flex-col items-center justify-center gap-3 p-4 text-center'>
@@ -413,14 +466,27 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
           <BookOpenIcon className='text-primary size-6' />
         </div>
         <div>
-          <h3 className='text-foreground mb-0.5 text-sm font-medium'>{_('Index This Book')}</h3>
+          <h3 className='text-foreground mb-0.5 text-sm font-medium'>
+            {resumePoint ? _('Indexing Unfinished') : _('Index This Book')}
+          </h3>
           <p className='text-muted-foreground text-xs'>
-            {_('Enable AI search and chat for this book')}
+            {!hasProviderCredentials
+              ? _('Configure your OpenAI-compatible API key in Settings before indexing')
+              : resumePoint
+                ? _('{{percent}}% is already indexed. Continue from there.', {
+                    percent: resumePercent,
+                  })
+                : _('Enable AI search and chat for this book')}
           </p>
         </div>
-        <Button onClick={handleIndex} size='sm' className='h-8 text-xs'>
+        <Button
+          onClick={handleIndex}
+          size='sm'
+          className='h-8 text-xs'
+          disabled={!hasProviderCredentials}
+        >
           <BookOpenIcon className='mr-1.5 size-3.5' />
-          {_('Start Indexing')}
+          {resumePoint ? _('Resume Indexing') : _('Start Indexing')}
         </Button>
       </div>
     );

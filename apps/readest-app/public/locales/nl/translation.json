@@ -2456,5 +2456,13 @@
   "Create New Tag": "Nieuwe tag maken",
   "Tag name": "Tagnaam",
   "No tags yet": "Nog geen tags",
-  "Failed to save note. Please try again.": "Notitie opslaan mislukt. Probeer het opnieuw."
+  "Failed to save note. Please try again.": "Notitie opslaan mislukt. Probeer het opnieuw.",
+  "Indexing failed": "Indexeren mislukt",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% is al geïndexeerd. Opnieuw proberen gaat vanaf daar verder.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Een eindpunt dat alleen chat ondersteunt, werkt ook zonder insluitingen. Laat het insluitmodel leeg en probeer het opnieuw.",
+  "Resume Indexing": "Indexeren hervatten",
+  "Retry Indexing": "Indexeren opnieuw proberen",
+  "Indexing Unfinished": "Indexeren onvoltooid",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Stel vóór het indexeren uw OpenAI-compatibele API-sleutel in bij Instellingen",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% is al geïndexeerd. Er wordt vanaf daar verdergegaan."
 }

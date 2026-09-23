@@ -2456,5 +2456,13 @@
   "Create New Tag": "Yangi teg yaratish",
   "Tag name": "Teg nomi",
   "No tags yet": "Hali teglar yoʻq",
-  "Failed to save note. Please try again.": "Eslatmani saqlab boʻlmadi. Qaytadan urinib koʻring."
+  "Failed to save note. Please try again.": "Eslatmani saqlab boʻlmadi. Qaytadan urinib koʻring.",
+  "Indexing failed": "Indekslash muvaffaqiyatsiz tugadi",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% allaqachon indekslangan. Qayta urinish o'sha joydan davom etadi.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Faqat suhbat uchun mo'ljallangan so'nggi nuqta embeddingsiz ham ishlay oladi. Embedding modelini bo'sh qoldiring va qayta urinib ko'ring.",
+  "Resume Indexing": "Indekslashni davom ettirish",
+  "Retry Indexing": "Indekslashni qayta urinish",
+  "Indexing Unfinished": "Indekslash tugallanmagan",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Indekslashdan oldin Sozlamalarda OpenAI bilan mos API kalitni sozlang",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% allaqachon indekslangan. O'sha joydan davom etadi."
 }

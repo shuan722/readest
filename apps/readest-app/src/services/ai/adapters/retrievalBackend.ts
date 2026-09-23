@@ -32,6 +32,13 @@ export interface RetrievalBackend {
   clearBook(bookHash: string): Promise<void>;
 
   /**
+   * Progress an interrupted index left behind, so the UI can say a retry
+   * continues rather than restarts. `null`/absent means start from scratch —
+   * only the legacy IDB backend checkpoints today.
+   */
+  getResumePoint?(bookHash: string): Promise<{ embedded: number; total: number } | null>;
+
+  /**
    * Legacy IDB path only. Returns top-K chunks the adapter folds into the
    * system prompt before calling streamText. `undefined` on Reedy.
    */

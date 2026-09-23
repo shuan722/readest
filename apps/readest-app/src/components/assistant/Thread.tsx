@@ -6,6 +6,7 @@ import {
   AssistantIf,
   BranchPickerPrimitive,
   ComposerPrimitive,
+  ErrorPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
   useAssistantState,
@@ -13,6 +14,7 @@ import {
   useThread,
 } from '@assistant-ui/react';
 import {
+  AlertTriangleIcon,
   ArrowUpIcon,
   BookOpenIcon,
   CheckIcon,
@@ -164,20 +166,16 @@ export const Thread: FC<ThreadProps> = ({
     <ThreadPrimitive.Root className='bg-base-100 relative flex h-full w-full flex-col items-stretch px-3'>
       <LoadingOverlay isVisible={showLoading} />
 
-      {!hasActiveConversation && (
-        <ThreadPrimitive.Empty>
-          <div className='animate-in fade-in flex h-full flex-col items-center justify-center duration-300'>
-            <div className='bg-base-content/10 mb-4 rounded-full p-3'>
-              <BookOpenIcon className='text-base-content size-6' />
-            </div>
-            <h3 className='text-base-content mb-1 text-sm font-medium'>Ask about this book</h3>
-            <p className='text-base-content/60 mb-4 text-xs'>
-              Get answers based on the book content
-            </p>
-            <Composer onClear={onClear} onResetIndex={onResetIndex} />
+      <ThreadPrimitive.Empty>
+        <div className='animate-in fade-in flex h-full flex-col items-center justify-center duration-300'>
+          <div className='bg-base-content/10 mb-4 rounded-full p-3'>
+            <BookOpenIcon className='text-base-content size-6' />
           </div>
-        </ThreadPrimitive.Empty>
-      )}
+          <h3 className='text-base-content mb-1 text-sm font-medium'>Ask about this book</h3>
+          <p className='text-base-content/60 mb-4 text-xs'>Get answers based on the book content</p>
+          <Composer onClear={onClear} onResetIndex={onResetIndex} />
+        </div>
+      </ThreadPrimitive.Empty>
 
       <AssistantIf condition={(s) => s.thread.isEmpty === false}>
         <div
@@ -298,6 +296,16 @@ const AssistantMessage: FC<AssistantMessageProps> = ({ sources = [], onSourceCli
             <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
           </div>
         </div>
+
+        {/* Without this the adapter's thrown error is swallowed: the turn just
+            stops with no assistant bubble and no explanation. Reload lives in
+            the action bar below. */}
+        <MessagePrimitive.Error>
+          <ErrorPrimitive.Root className='border-warning/30 bg-warning/10 eink-bordered mt-1 flex w-full items-start gap-2 rounded-lg border px-2.5 py-2'>
+            <AlertTriangleIcon className='text-warning mt-px size-3.5 shrink-0' />
+            <ErrorPrimitive.Message className='text-base-content/80 select-text text-xs leading-relaxed' />
+          </ErrorPrimitive.Root>
+        </MessagePrimitive.Error>
 
         <AssistantIf condition={(s) => s.message.status?.type !== 'running'}>
           <div className='animate-in fade-in mt-0.5 flex h-6 w-full items-center justify-start gap-0.5 duration-300'>

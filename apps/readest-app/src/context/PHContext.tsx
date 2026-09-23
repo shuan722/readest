@@ -5,6 +5,7 @@ import { ReactNode, useEffect } from 'react';
 import { PostHogProvider } from 'posthog-js/react';
 import { TELEMETRY_DECISION_KEY, TELEMETRY_OPT_OUT_KEY } from '@/utils/telemetry';
 import { getAppVersion } from '@/utils/version';
+import { isAnonymousBuild } from '@/services/environment';
 
 // Returns true if PostHog should be opted-out at boot time, before settings
 // have loaded. Honors any explicit decision the user has made; otherwise
@@ -26,7 +27,12 @@ const posthogKey =
   process.env['NEXT_PUBLIC_POSTHOG_KEY'] ||
   atob(process.env['NEXT_PUBLIC_DEFAULT_POSTHOG_KEY_BASE64']!);
 
-if (typeof window !== 'undefined' && process.env['NODE_ENV'] === 'production' && posthogKey) {
+if (
+  !isAnonymousBuild() &&
+  typeof window !== 'undefined' &&
+  process.env['NODE_ENV'] === 'production' &&
+  posthogKey
+) {
   posthog.init(posthogKey, {
     api_host: posthogUrl,
     person_profiles: 'always',

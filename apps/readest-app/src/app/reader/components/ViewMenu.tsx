@@ -38,6 +38,7 @@ import { eventDispatcher } from '@/utils/event';
 import { getMaxInlineSize } from '@/utils/config';
 import { nextThemeMode } from '@/utils/ambientLight';
 import { saveViewSettings } from '@/helpers/settings';
+import { isAnonymousBuild } from '@/services/environment';
 import { tauriHandleToggleFullScreen } from '@/utils/window';
 import { setCoverSpread } from '@/utils/spread';
 import MenuItem from '@/components/MenuItem';
@@ -530,42 +531,46 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
 
       <hr aria-hidden='true' className='border-base-300 my-1' />
 
-      <MenuItem
-        label={syncStatus.label}
-        description={
-          // Which provider the status belongs to. Only worth saying when a
-          // third-party backend is in play — with Readest Cloud alone the row
-          // means what it always meant.
-          syncStatus.providers.length > 1
-            ? // Several names in full would overrun the row; show a count.
-              // `count` (not a plain var) so i18next applies each locale's
-              // plural rule.
-              _('Synced via {{count}} providers', { count: syncStatus.providers.length })
-            : syncStatus.providers[0] && syncStatus.providers[0].kind !== 'readest'
-              ? _('Synced via {{provider}}', { provider: syncStatus.providers[0].name })
-              : undefined
-        }
-        Icon={syncStatus.needsSignIn || syncStatus.failed ? MdSyncProblem : MdSync}
-        iconClassName={
-          syncStatus.syncing || (user && viewState?.syncing) ? 'animate-reverse-spin' : ''
-        }
-        onClick={handleSync}
-        siblings={
-          <button
-            aria-label={_('Sync Info')}
-            title={_('Sync Info')}
-            className='hover:bg-base-300 text-base-content/70 mx-1 rounded-md px-2'
-            onClick={() => {
-              setIsDropdownOpen?.(false);
-              onShowMetaHashDialog?.();
-            }}
-          >
-            <MdInfoOutline size={16} />
-          </button>
-        }
-      />
+      {!isAnonymousBuild() && (
+        <>
+          <MenuItem
+            label={syncStatus.label}
+            description={
+              // Which provider the status belongs to. Only worth saying when a
+              // third-party backend is in play — with Readest Cloud alone the row
+              // means what it always meant.
+              syncStatus.providers.length > 1
+                ? // Several names in full would overrun the row; show a count.
+                  // `count` (not a plain var) so i18next applies each locale's
+                  // plural rule.
+                  _('Synced via {{count}} providers', { count: syncStatus.providers.length })
+                : syncStatus.providers[0] && syncStatus.providers[0].kind !== 'readest'
+                  ? _('Synced via {{provider}}', { provider: syncStatus.providers[0].name })
+                  : undefined
+            }
+            Icon={syncStatus.needsSignIn || syncStatus.failed ? MdSyncProblem : MdSync}
+            iconClassName={
+              syncStatus.syncing || (user && viewState?.syncing) ? 'animate-reverse-spin' : ''
+            }
+            onClick={handleSync}
+            siblings={
+              <button
+                aria-label={_('Sync Info')}
+                title={_('Sync Info')}
+                className='hover:bg-base-300 text-base-content/70 mx-1 rounded-md px-2'
+                onClick={() => {
+                  setIsDropdownOpen?.(false);
+                  onShowMetaHashDialog?.();
+                }}
+              >
+                <MdInfoOutline size={16} />
+              </button>
+            }
+          />
 
-      <hr aria-hidden='true' className='border-base-300 my-1' />
+          <hr aria-hidden='true' className='border-base-300 my-1' />
+        </>
+      )}
 
       {appService?.hasWindow && <MenuItem label={_('Fullscreen')} onClick={handleFullScreen} />}
       <MenuItem
@@ -604,9 +609,12 @@ const ViewMenu: React.FC<ViewMenuProps> = ({
         onClick={() => setInvertImgColorInDark(!invertImgColorInDark)}
       />
 
-      <hr aria-hidden='true' className='border-base-300 my-1' />
-
-      <MenuItem label={_('Share Book')} Icon={IoShareOutline} onClick={handleShare} />
+      {!isAnonymousBuild() && (
+        <>
+          <hr aria-hidden='true' className='border-base-300 my-1' />
+          <MenuItem label={_('Share Book')} Icon={IoShareOutline} onClick={handleShare} />
+        </>
+      )}
     </Menu>
   );
 };

@@ -12,6 +12,7 @@ import {
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabase';
 import posthog from 'posthog-js';
+import { isAnonymousBuild } from '@/services/environment';
 
 interface AuthContextType {
   token: string | null;
@@ -25,12 +26,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
+    if (isAnonymousBuild()) return null;
     if (typeof window !== 'undefined') {
       return localStorage.getItem('token');
     }
     return null;
   });
   const [user, setUser] = useState<User | null>(() => {
+    if (isAnonymousBuild()) return null;
     if (typeof window !== 'undefined') {
       const userJson = localStorage.getItem('user');
       return userJson ? JSON.parse(userJson) : null;
@@ -39,6 +42,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
+    if (isAnonymousBuild()) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      return;
+    }
     const syncSession = (
       session: { access_token: string; refresh_token: string; user: User } | null,
     ) => {
@@ -83,6 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // context value — without this, login/logout/refresh would be recreated on
   // every render and the memo would always invalidate.
   const login = useCallback((newToken: string, newUser: User) => {
+    if (isAnonymousBuild()) return;
     console.log('Logging in');
     setToken(newToken);
     setUser(newUser);
@@ -91,6 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const logout = useCallback(async () => {
+    if (isAnonymousBuild()) return;
     console.log('Logging out');
     try {
       await supabase.auth.refreshSession();
@@ -105,6 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const refresh = useCallback(async () => {
+    if (isAnonymousBuild()) return;
     try {
       await supabase.auth.refreshSession();
     } catch {}

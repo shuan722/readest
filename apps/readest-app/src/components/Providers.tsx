@@ -44,6 +44,7 @@ import { upgradeToKeychainIfAvailable } from '@/libs/crypto/passphrase';
 import { cryptoSession } from '@/libs/crypto/session';
 import { useAppLockStore } from '@/store/appLockStore';
 import { initSettingsSync } from '@/services/sync/replicaSettingsSync';
+import { isAnonymousBuild } from '@/services/environment';
 
 // One-time, on first launch after this feature ships, decide how to handle
 // PostHog telemetry for the current install:
@@ -147,12 +148,40 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
       appService.loadSettings().then(async (settings) => {
         const globalViewSettings = settings.globalViewSettings;
         const hadSettingsFile = await hadSettingsFilePromise.catch(() => false);
-        finalizeTelemetryDecision({
-          appService,
-          settings,
-          isNewUser: !hadSettingsFile,
-          onShowPrompt: () => setShowTelemetryConsent(true),
-        });
+        if (!isAnonymousBuild()) {
+          finalizeTelemetryDecision({
+            appService,
+            settings,
+            isNewUser: !hadSettingsFile,
+            onShowPrompt: () => setShowTelemetryConsent(true),
+          });
+        } else {
+          settings.telemetryEnabled = false;
+          // Disable every credential-bearing integration in the personal
+          // build. Keep the local library and public OPDS entries intact, but
+          // ensure stale settings cannot trigger background network traffic.
+          settings.readestCloud = { ...settings.readestCloud, enabled: false };
+          settings.kosync = { ...settings.kosync, enabled: false };
+          settings.bookorbit = { ...settings.bookorbit, enabled: false };
+          settings.readwise = { ...settings.readwise, enabled: false };
+          settings.hardcover = { ...settings.hardcover, enabled: false };
+          settings.notion = { ...settings.notion, enabled: false };
+          settings.webdav = { ...settings.webdav, enabled: false };
+          settings.googleDrive = { ...settings.googleDrive, enabled: false };
+          settings.s3 = { ...settings.s3, enabled: false };
+          settings.onedrive = { ...settings.onedrive, enabled: false };
+          settings.icloud = { ...settings.icloud, enabled: false };
+          settings.absServers = [];
+          settings.aiSettings = {
+            ...settings.aiSettings,
+            provider: 'openrouter',
+            ollamaBaseUrl: '',
+            ollamaModel: '',
+            ollamaEmbeddingModel: '',
+            aiGatewayApiKey: undefined,
+          };
+          void appService.saveSettings(settings);
+        }
         applyUILanguage(globalViewSettings.uiLanguage);
         // Seed the customTextureStore with the disk-loaded textures (preserving
         // their saved ids) so the boot-time applyBackgroundTexture below can
@@ -189,7 +218,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         // local defaults to the server with a fresh HLC — overwriting
         // the cross-device authoritative values another device set.
         // Idempotent — safe to call on remount.
-        initSettingsSync(settings);
+        if (!isAnonymousBuild()) initSettingsSync(settings);
       });
     }
   }, [

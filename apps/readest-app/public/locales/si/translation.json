@@ -2456,5 +2456,13 @@
   "Create New Tag": "නව ටැගයක් සාදන්න",
   "Tag name": "ටැගයේ නම",
   "No tags yet": "තවම ටැග් නැත",
-  "Failed to save note. Please try again.": "සටහන සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න."
+  "Failed to save note. Please try again.": "සටහන සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+  "Indexing failed": "දර්ශකය කිරීම අසාර්ථකයි",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% දැනටමත් දර්ශකය කර ඇත. නැවත උත්සාහ කිරීම එතැන් සිට ඉදිරියට යයි.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "කතාබස් පමණක් වන අන්ත ලක්ෂ්‍යයකට එබ්බවීම් නොමැතිව ක්‍රියා කළ හැකිය. එබ්බවීමේ ආකෘතිය හිස්ව තබා නැවත උත්සාහ කරන්න.",
+  "Resume Indexing": "දර්ශකය කිරීම ඉදිරියට",
+  "Retry Indexing": "දර්ශකය කිරීම නැවත උත්සාහ කරන්න",
+  "Indexing Unfinished": "දර්ශකය කිරීම අසම්පූර්ණයි",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "දර්ශකය කිරීමට පෙර සැකසුම් තුළ ඔබේ OpenAI-අනුකූල API යතුර වින්‍යාස කරන්න",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% දැනටමත් දර්ශකය කර ඇත. එතැන් සිට ඉදිරියට යයි."
 }

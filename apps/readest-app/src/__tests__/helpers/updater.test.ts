@@ -86,6 +86,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  delete process.env['NEXT_PUBLIC_DISABLE_UPDATER'];
   vi.restoreAllMocks();
 });
 
@@ -330,6 +331,18 @@ describe('updater', () => {
 
   // ── checkAppReleaseNotes ───────────────────────────────────────
   describe('checkAppReleaseNotes', () => {
+    test('does not contact the official changelog when updates are disabled', async () => {
+      process.env['NEXT_PUBLIC_DISABLE_UPDATER'] = 'true';
+      const mockFetchFn = vi.fn().mockResolvedValue({ ok: true });
+      vi.stubGlobal('fetch', mockFetchFn);
+
+      const result = await checkAppReleaseNotes(false);
+
+      expect(result).toBe(false);
+      expect(mockFetchFn).not.toHaveBeenCalled();
+      expect(mockSetUpdaterWindowVisible).not.toHaveBeenCalled();
+    });
+
     test('shows release notes when current version is newer than last shown', async () => {
       mockAppVersion = '2.0.0';
       setLastShownReleaseNotesVersion('1.0.0');

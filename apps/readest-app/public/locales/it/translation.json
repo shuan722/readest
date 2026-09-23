@@ -2516,5 +2516,13 @@
   "Create New Tag": "Crea nuovo tag",
   "Tag name": "Nome del tag",
   "No tags yet": "Nessun tag",
-  "Failed to save note. Please try again.": "Impossibile salvare la nota. Riprova."
+  "Failed to save note. Please try again.": "Impossibile salvare la nota. Riprova.",
+  "Indexing failed": "Indicizzazione non riuscita",
+  "{{percent}}% is already indexed. Retrying continues from there.": "Il {{percent}}% è già indicizzato. Riprovando si continuerà da lì.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Un endpoint solo chat può funzionare senza incorporazioni. Lascia vuoto il modello di incorporazione e riprova.",
+  "Resume Indexing": "Riprendi indicizzazione",
+  "Retry Indexing": "Riprova indicizzazione",
+  "Indexing Unfinished": "Indicizzazione incompleta",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Configura la tua chiave API compatibile con OpenAI nelle Impostazioni prima di indicizzare",
+  "{{percent}}% is already indexed. Continue from there.": "Il {{percent}}% è già indicizzato. Si continuerà da lì."
 }

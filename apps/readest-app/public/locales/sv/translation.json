@@ -2456,5 +2456,13 @@
   "Create New Tag": "Skapa ny tagg",
   "Tag name": "Taggnamn",
   "No tags yet": "Inga taggar ännu",
-  "Failed to save note. Please try again.": "Det gick inte att spara anteckningen. Försök igen."
+  "Failed to save note. Please try again.": "Det gick inte att spara anteckningen. Försök igen.",
+  "Indexing failed": "Indexering misslyckades",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}} % är redan indexerat. Ett nytt försök fortsätter därifrån.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "En slutpunkt med endast chatt fungerar även utan inbäddningar. Lämna Inbäddningsmodell tomt och försök igen.",
+  "Resume Indexing": "Återuppta indexering",
+  "Retry Indexing": "Försök indexera igen",
+  "Indexing Unfinished": "Indexering ej slutförd",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Konfigurera din OpenAI-kompatibla API-nyckel i Inställningar före indexering",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}} % är redan indexerat. Indexeringen fortsätter därifrån."
 }

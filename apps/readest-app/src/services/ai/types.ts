@@ -79,6 +79,14 @@ export interface BookIndexMeta {
   totalChunks: number;
   embeddingModel: string;
   lastUpdated: number;
+  /**
+   * 'partial' marks a checkpoint written mid-indexing so an interrupted run
+   * can resume. Absent means complete — meta used to be written only on
+   * success, so pre-existing records are complete by definition.
+   */
+  status?: 'partial' | 'complete';
+  /** Chunks embedded so far. Only meaningful while `status` is 'partial'. */
+  embeddedChunks?: number;
 }
 
 export interface IndexingState {

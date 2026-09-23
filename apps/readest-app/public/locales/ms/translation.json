@@ -2396,5 +2396,13 @@
   "Create New Tag": "Cipta Tag Baharu",
   "Tag name": "Nama tag",
   "No tags yet": "Belum ada tag",
-  "Failed to save note. Please try again.": "Gagal menyimpan nota. Sila cuba lagi."
+  "Failed to save note. Please try again.": "Gagal menyimpan nota. Sila cuba lagi.",
+  "Indexing failed": "Pengindeksan gagal",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% telah diindeks. Mencuba semula akan menyambung dari situ.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Titik akhir sembang sahaja boleh berfungsi tanpa benaman. Biarkan Model Benaman kosong dan cuba lagi.",
+  "Resume Indexing": "Sambung Pengindeksan",
+  "Retry Indexing": "Cuba Indeks Semula",
+  "Indexing Unfinished": "Pengindeksan Belum Selesai",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Konfigurasikan kunci API serasi OpenAI anda dalam Tetapan sebelum mengindeks",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% telah diindeks. Akan disambung dari situ."
 }

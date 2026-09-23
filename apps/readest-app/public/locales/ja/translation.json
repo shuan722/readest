@@ -2396,5 +2396,13 @@
   "Create New Tag": "新しいタグを作成",
   "Tag name": "タグ名",
   "No tags yet": "タグはまだありません",
-  "Failed to save note. Please try again.": "メモを保存できませんでした。もう一度お試しください。"
+  "Failed to save note. Please try again.": "メモを保存できませんでした。もう一度お試しください。",
+  "Indexing failed": "インデックスに失敗しました",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% はインデックス済みです。再試行するとその続きから再開します。",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "チャット専用エンドポイントは埋め込みなしでも動作します。埋め込みモデルを空欄にして再試行してください。",
+  "Resume Indexing": "インデックスを再開",
+  "Retry Indexing": "インデックスを再試行",
+  "Indexing Unfinished": "インデックスが未完了",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "インデックスの前に設定で OpenAI 互換の API キーを設定してください",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% はインデックス済みです。その続きから再開します。"
 }

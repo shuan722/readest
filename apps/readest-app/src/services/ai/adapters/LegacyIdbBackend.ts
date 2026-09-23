@@ -1,5 +1,10 @@
 import type { BookDoc } from '@/libs/document';
-import { hybridSearch, indexBook as ragIndexBook, isBookIndexed } from '../ragService';
+import {
+  getIndexResumePoint,
+  hybridSearch,
+  indexBook as ragIndexBook,
+  isBookIndexed,
+} from '../ragService';
 import { aiStore } from '../storage/aiStore';
 import type { AISettings, ScoredChunk } from '../types';
 import type { BackendIndexOptions, RetrievalBackend } from './retrievalBackend';
@@ -35,6 +40,10 @@ export class LegacyIdbBackend implements RetrievalBackend {
 
   clearBook(bookHash: string): Promise<void> {
     return aiStore.clearBook(bookHash);
+  }
+
+  getResumePoint(bookHash: string): Promise<{ embedded: number; total: number } | null> {
+    return getIndexResumePoint(bookHash);
   }
 
   searchForSystemPrompt(

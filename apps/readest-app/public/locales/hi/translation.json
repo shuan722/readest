@@ -2456,5 +2456,13 @@
   "Create New Tag": "नया टैग बनाएं",
   "Tag name": "टैग का नाम",
   "No tags yet": "अभी तक कोई टैग नहीं",
-  "Failed to save note. Please try again.": "नोट सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।"
+  "Failed to save note. Please try again.": "नोट सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।",
+  "Indexing failed": "इंडेक्सिंग विफल",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% पहले ही इंडेक्स हो चुका है। पुनः प्रयास वहीं से जारी रहेगा।",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "केवल-चैट एंडपॉइंट एंबेडिंग के बिना भी काम कर सकता है। एंबेडिंग मॉडल खाली छोड़ें और पुनः प्रयास करें।",
+  "Resume Indexing": "इंडेक्सिंग जारी रखें",
+  "Retry Indexing": "इंडेक्सिंग पुनः प्रयास करें",
+  "Indexing Unfinished": "इंडेक्सिंग अधूरी",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "इंडेक्स करने से पहले सेटिंग्स में अपनी OpenAI-संगत API कुंजी कॉन्फ़िगर करें",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% पहले ही इंडेक्स हो चुका है। वहीं से जारी रहेगा।"
 }

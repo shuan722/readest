@@ -2516,5 +2516,13 @@
   "Create New Tag": "צור תגית חדשה",
   "Tag name": "שם התגית",
   "No tags yet": "אין תגיות עדיין",
-  "Failed to save note. Please try again.": "שמירת ההערה נכשלה. נסה שוב."
+  "Failed to save note. Please try again.": "שמירת ההערה נכשלה. נסה שוב.",
+  "Indexing failed": "האינדוקס נכשל",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% כבר מאונדקסים. ניסיון חוזר ימשיך מהנקודה הזו.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "נקודת קצה לצ'אט בלבד יכולה לעבוד ללא Embedding. השאירו את מודל ה-Embedding ריק ונסו שוב.",
+  "Resume Indexing": "המשך אינדוקס",
+  "Retry Indexing": "נסה לאנדקס שוב",
+  "Indexing Unfinished": "האינדוקס לא הושלם",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "הגדירו מפתח API תואם OpenAI בהגדרות לפני האינדוקס",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% כבר מאונדקסים. התהליך ימשיך מהנקודה הזו."
 }

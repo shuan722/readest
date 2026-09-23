@@ -20,7 +20,7 @@ import {
 } from 'react-icons/md';
 import { FiSearch } from 'react-icons/fi';
 import { getDirFromUILanguage } from '@/utils/rtl';
-import { getCommandPaletteShortcut } from '@/services/environment';
+import { getCommandPaletteShortcut, isAnonymousBuild } from '@/services/environment';
 import FontPanel from './FontPanel';
 import LayoutPanel from './LayoutPanel';
 import ThemePanel from './ThemePanel';
@@ -115,7 +115,7 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       tab: 'AI',
       icon: PiRobot,
       label: _('AI Assistant'),
-      disabled: process.env.NODE_ENV === 'production',
+      disabled: process.env.NODE_ENV === 'production' && !isAnonymousBuild(),
     },
     {
       tab: 'TTS',

@@ -13,7 +13,7 @@ import {
 import { DEFAULT_AI_SETTINGS, GATEWAY_MODELS, MODEL_PRICING } from '@/services/ai/constants';
 import type { AISettings, AIProviderName } from '@/services/ai/types';
 import { exportReedyMetricsBundle } from '@/services/reedy/instrumentation';
-import { isTauriAppPlatform } from '@/services/environment';
+import { isAnonymousBuild, isTauriAppPlatform } from '@/services/environment';
 import { BoxedList, SettingLabel, SettingsRow, SettingsSwitchRow } from './primitives';
 
 type ConnectionStatus = 'idle' | 'testing' | 'success' | 'error';
@@ -27,6 +27,14 @@ interface ModelOption {
   inputCost: string;
   outputCost: string;
 }
+
+// The gateway does not reliably expose a provider/task field. This personal
+// build intentionally offers only OpenAI model IDs, then separates the
+// non-chat modalities so they cannot be selected as the LLM.
+const isOpenAIModelId = (id: string) => /^(?:gpt-|o[134](?:-|$)|text-embedding-)/i.test(id);
+const isEmbeddingModelId = (id: string) => /^text-embedding-/i.test(id);
+const isNonChatModelId = (id: string) =>
+  /(?:embedding|image|audio|transcribe|tts|realtime|whisper)/i.test(id);
 
 const getModelOptions = (): ModelOption[] => [
   {
@@ -79,7 +87,9 @@ const AIPanel: React.FC = () => {
   const [reedyAgentRuntime, setReedyAgentRuntime] = useState(
     (aiSettings.reedy?.runtime ?? 'mvp') === 'agent',
   );
-  const [provider, setProvider] = useState<AIProviderName>(aiSettings.provider);
+  const [provider, setProvider] = useState<AIProviderName>(
+    isAnonymousBuild() ? 'openrouter' : aiSettings.provider,
+  );
   const [ollamaUrl, setOllamaUrl] = useState(aiSettings.ollamaBaseUrl);
   const [ollamaModel, setOllamaModel] = useState(aiSettings.ollamaModel);
   const [ollamaEmbeddingModel, setOllamaEmbeddingModel] = useState(aiSettings.ollamaEmbeddingModel);
@@ -184,8 +194,21 @@ const AIPanel: React.FC = () => {
       // `name || id` so OpenRouter's friendly labels still show up.
       models.sort((a, b) => a.id.localeCompare(b.id));
       setOpenrouterModels(models);
-      if (models.length > 0 && !models.some((m) => m.id === openrouterModel)) {
-        setOpenrouterModel(models[0]!.id);
+      const chatModels = models.filter(
+        (model) => isOpenAIModelId(model.id) && !isNonChatModelId(model.id),
+      );
+      if (chatModels.length > 0 && !chatModels.some((m) => m.id === openrouterModel)) {
+        setOpenrouterModel(chatModels[0]!.id);
+      }
+      const embeddingModels = models.filter(
+        (model) => isOpenAIModelId(model.id) && isEmbeddingModelId(model.id),
+      );
+      if (
+        openrouterEmbeddingModel &&
+        embeddingModels.length > 0 &&
+        !embeddingModels.some((m) => m.id === openrouterEmbeddingModel)
+      ) {
+        setOpenrouterEmbeddingModel('');
       }
     } catch (e) {
       setOpenrouterModels([]);
@@ -414,26 +437,30 @@ const AIPanel: React.FC = () => {
       </BoxedList>
 
       <BoxedList title={_('Provider')} className={disabledSection}>
-        <SettingsRow label={_('Ollama (Local)')} asLabel>
-          <input
-            type='radio'
-            name='ai-provider'
-            className='radio'
-            checked={provider === 'ollama'}
-            onChange={() => setProvider('ollama')}
-            disabled={!enabled}
-          />
-        </SettingsRow>
-        <SettingsRow label={_('AI Gateway (Cloud)')} asLabel>
-          <input
-            type='radio'
-            name='ai-provider'
-            className='radio'
-            checked={provider === 'ai-gateway'}
-            onChange={() => setProvider('ai-gateway')}
-            disabled={!enabled}
-          />
-        </SettingsRow>
+        {!isAnonymousBuild() && (
+          <SettingsRow label={_('Ollama (Local)')} asLabel>
+            <input
+              type='radio'
+              name='ai-provider'
+              className='radio'
+              checked={provider === 'ollama'}
+              onChange={() => setProvider('ollama')}
+              disabled={!enabled}
+            />
+          </SettingsRow>
+        )}
+        {!isAnonymousBuild() && (
+          <SettingsRow label={_('AI Gateway (Cloud)')} asLabel>
+            <input
+              type='radio'
+              name='ai-provider'
+              className='radio'
+              checked={provider === 'ai-gateway'}
+              onChange={() => setProvider('ai-gateway')}
+              disabled={!enabled}
+            />
+          </SettingsRow>
+        )}
         <SettingsRow label={_('OpenAI Compatible')} asLabel>
           <input
             type='radio'
@@ -446,7 +473,7 @@ const AIPanel: React.FC = () => {
         </SettingsRow>
       </BoxedList>
 
-      {provider === 'ollama' && (
+      {!isAnonymousBuild() && provider === 'ollama' && (
         <BoxedList title={_('Ollama Configuration')} className={disabledSection}>
           {/* Stacked-content rows: label-on-top, input below — used when the
               control is too wide to fit alongside the label (full-width text
@@ -667,18 +694,21 @@ const AIPanel: React.FC = () => {
           {/* Model picker — populated from the endpoint's /models */}
           <div className='flex flex-col gap-2 pe-4 py-3'>
             <SettingLabel>{_('LLM Model')}</SettingLabel>
-            {openrouterModels.length > 0 ? (
+            {openrouterModels.filter((m) => isOpenAIModelId(m.id) && !isNonChatModelId(m.id))
+              .length > 0 ? (
               <select
                 className='select select-sm bg-base-100 text-base-content w-full'
                 value={openrouterModel}
                 onChange={(e) => setOpenrouterModel(e.target.value)}
                 disabled={!enabled}
               >
-                {openrouterModels.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name ? `${m.name} (${m.id})` : m.id}
-                  </option>
-                ))}
+                {openrouterModels
+                  .filter((m) => isOpenAIModelId(m.id) && !isNonChatModelId(m.id))
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name ? `${m.name} (${m.id})` : m.id}
+                    </option>
+                  ))}
               </select>
             ) : (
               // Fallback: free-text input when /models isn't reachable yet,
@@ -702,14 +732,13 @@ const AIPanel: React.FC = () => {
             )}
           </div>
 
-          {/* Embedding model — same /models listing as the LLM picker.
-              OpenAI's /v1/models doesn't tag chat vs embedding, so the two
-              selects share one list and the user picks the right one.
-              Falls back to free text when the list isn't loaded yet, so
-              the user can still type a known ID before refreshing. */}
+          {/* Embedding model — filtered from the same /models response. The
+              endpoint may not advertise a task field, so known embedding ID
+              patterns are used and free text remains available as a fallback. */}
           <div className='flex flex-col gap-2 pe-4 py-3'>
             <SettingLabel>{_('Embedding Model')}</SettingLabel>
-            {openrouterModels.length > 0 ? (
+            {openrouterModels.filter((m) => isOpenAIModelId(m.id) && isEmbeddingModelId(m.id))
+              .length > 0 ? (
               <select
                 className='select select-sm bg-base-100 text-base-content w-full'
                 value={openrouterEmbeddingModel}
@@ -717,11 +746,13 @@ const AIPanel: React.FC = () => {
                 disabled={!enabled}
               >
                 <option value=''>{_('None (disable RAG)')}</option>
-                {openrouterModels.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name ? `${m.name} (${m.id})` : m.id}
-                  </option>
-                ))}
+                {openrouterModels
+                  .filter((m) => isOpenAIModelId(m.id) && isEmbeddingModelId(m.id))
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name ? `${m.name} (${m.id})` : m.id}
+                    </option>
+                  ))}
               </select>
             ) : (
               <input

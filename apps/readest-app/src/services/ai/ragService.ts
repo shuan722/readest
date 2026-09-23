@@ -1,7 +1,8 @@
-import { embed, embedMany } from 'ai';
+import { embed } from 'ai';
 import { aiStore } from './storage/aiStore';
 import { chunkSection, extractTextFromDocument } from './utils/chunker';
 import { withRetryAndTimeout, AI_TIMEOUTS, AI_RETRY_CONFIGS } from './utils/retry';
+import { embedTextsInBatches } from './utils/embedBatch';
 import { getAIProvider } from './providers';
 import { aiLogger } from './logger';
 import type { AISettings, TextChunk, ScoredChunk, EmbeddingProgress, BookIndexMeta } from './types';
@@ -130,37 +131,84 @@ export async function indexBook(
       return;
     }
 
-    onProgress?.({ current: 0, total: allChunks.length, phase: 'embedding' });
     const embeddingModelName =
       settings.provider === 'ollama'
         ? settings.ollamaEmbeddingModel
         : settings.provider === 'openrouter'
-          ? settings.openrouterEmbeddingModel || 'text-embedding-3-small'
-          : settings.aiGatewayEmbeddingModel || 'text-embedding-3-small';
-    aiLogger.embedding.start(embeddingModelName, allChunks.length);
+          ? settings.openrouterEmbeddingModel
+          : settings.aiGatewayEmbeddingModel;
 
-    const texts = allChunks.map((c) => c.text);
-    try {
-      const { embeddings } = await withRetryAndTimeout(
-        () =>
-          embedMany({
-            model: provider.getEmbeddingModel(),
-            values: texts,
-          }),
-        AI_TIMEOUTS.EMBEDDING_BATCH,
-        AI_RETRY_CONFIGS.EMBEDDING,
-      );
+    const buildMeta = (status: 'partial' | 'complete', embeddedChunks: number): BookIndexMeta => ({
+      bookHash,
+      bookTitle: title,
+      authorName: extractAuthor(bookDoc.metadata),
+      totalSections: sections.length,
+      totalChunks: allChunks.length,
+      embeddingModel: embeddingModelName || 'none',
+      lastUpdated: Date.now(),
+      status,
+      embeddedChunks,
+    });
 
-      for (let i = 0; i < allChunks.length; i++) {
-        allChunks[i]!.embedding = embeddings[i];
-        state.chunksProcessed = i + 1;
-        state.progress = Math.round(((i + 1) / allChunks.length) * 100);
+    // Chat-only OpenAI-compatible endpoints are valid. Without an embedding
+    // model we still build the local BM25 index, so book chat works without
+    // RAG/vector search instead of failing with an opaque embedding error.
+    if (embeddingModelName) {
+      const restored = await restoreCheckpoint(bookHash, allChunks, embeddingModelName);
+      aiLogger.embedding.start(embeddingModelName, allChunks.length);
+      state.chunksProcessed = restored;
+      state.progress = Math.round((restored / allChunks.length) * 100);
+      onProgress?.({ current: restored, total: allChunks.length, phase: 'embedding' });
+
+      let embedded = restored;
+      let dimensions = 0;
+
+      // Embed and persist one section at a time. An interrupted run (network
+      // drop, quota, app close) keeps every section it finished, and the next
+      // attempt resumes from there instead of re-embedding the whole book.
+      for (const section of groupBySection(allChunks)) {
+        const pending = section.filter((c) => !c.embedding);
+        if (pending.length === 0) continue;
+
+        try {
+          // Send token-bounded batches: embedding backends cap the request
+          // payload (300k tokens on several gateways) and `embedMany` alone
+          // only splits by item count, so a long section in one call overflows.
+          const embeddings = await embedTextsInBatches(
+            provider.getEmbeddingModel(),
+            pending.map((c) => c.text),
+            {
+              onBatch: (completed) => {
+                state.chunksProcessed = embedded + completed;
+                state.progress = Math.round((state.chunksProcessed / allChunks.length) * 100);
+                aiLogger.embedding.batch(state.chunksProcessed, allChunks.length);
+                onProgress?.({
+                  current: state.chunksProcessed,
+                  total: allChunks.length,
+                  phase: 'embedding',
+                });
+              },
+            },
+          );
+          for (let i = 0; i < pending.length; i++) {
+            pending[i]!.embedding = embeddings[i];
+          }
+          dimensions = embeddings[0]?.length || dimensions;
+        } catch (e) {
+          aiLogger.embedding.error(`section ${section[0]!.sectionIndex}`, (e as Error).message);
+          throw e;
+        }
+
+        embedded += pending.length;
+        await aiStore.saveChunks(section);
+        await aiStore.saveMeta(buildMeta('partial', embedded));
+        aiLogger.rag.indexProgress('embedding', embedded, allChunks.length);
       }
-      onProgress?.({ current: allChunks.length, total: allChunks.length, phase: 'embedding' });
-      aiLogger.embedding.complete(embeddings.length, allChunks.length, embeddings[0]?.length || 0);
-    } catch (e) {
-      aiLogger.embedding.error('batch', (e as Error).message);
-      throw e;
+
+      aiLogger.embedding.complete(embedded, allChunks.length, dimensions);
+    } else {
+      state.chunksProcessed = allChunks.length;
+      state.progress = 100;
     }
 
     onProgress?.({ current: 0, total: 2, phase: 'indexing' });
@@ -171,15 +219,7 @@ export async function indexBook(
     aiLogger.store.saveBM25(bookHash);
     await aiStore.saveBM25Index(bookHash, allChunks);
 
-    const meta: BookIndexMeta = {
-      bookHash,
-      bookTitle: title,
-      authorName: extractAuthor(bookDoc.metadata),
-      totalSections: sections.length,
-      totalChunks: allChunks.length,
-      embeddingModel: embeddingModelName,
-      lastUpdated: Date.now(),
-    };
+    const meta = buildMeta('complete', allChunks.length);
     aiLogger.store.saveMeta(meta);
     await aiStore.saveMeta(meta);
 
@@ -193,6 +233,82 @@ export async function indexBook(
     aiLogger.rag.indexError(bookHash, (error as Error).message);
     throw error;
   }
+}
+
+/**
+ * Chunks are produced in section order, so grouping is a linear scan.
+ */
+function groupBySection(chunks: TextChunk[]): TextChunk[][] {
+  const groups: TextChunk[][] = [];
+  let current: TextChunk[] = [];
+  for (const chunk of chunks) {
+    if (current.length > 0 && current[0]!.sectionIndex !== chunk.sectionIndex) {
+      groups.push(current);
+      current = [];
+    }
+    current.push(chunk);
+  }
+  if (current.length > 0) groups.push(current);
+  return groups;
+}
+
+/**
+ * Carry embeddings from an interrupted run over onto freshly chunked text,
+ * mutating `chunks` in place. Returns how many were recovered.
+ */
+async function restoreCheckpoint(
+  bookHash: string,
+  chunks: TextChunk[],
+  embeddingModel: string,
+): Promise<number> {
+  const meta = await aiStore.getMeta(bookHash);
+  if (meta?.status !== 'partial') return 0;
+
+  if (meta.embeddingModel !== embeddingModel) {
+    // Vectors from another model share no space with the ones we are about
+    // to produce, so the half-finished index is unusable.
+    aiLogger.rag.indexProgress(`resume discarded (${meta.embeddingModel})`, 0, chunks.length);
+    await aiStore.clearBook(bookHash);
+    return 0;
+  }
+
+  const saved = new Map((await aiStore.getChunks(bookHash)).map((c) => [c.id, c]));
+  let restored = 0;
+  for (const chunk of chunks) {
+    const previous = saved.get(chunk.id);
+    if (!previous) continue;
+    if (previous.text !== chunk.text) {
+      // Chunk ids are positional. Different text under the same id means the
+      // chunk layout moved, so the checkpoint describes a shape we no longer
+      // produce — keeping any of it would mispair vectors with text and leave
+      // stale chunks behind.
+      aiLogger.rag.indexProgress('resume discarded (layout changed)', 0, chunks.length);
+      await aiStore.clearBook(bookHash);
+      for (const c of chunks) delete c.embedding;
+      return 0;
+    }
+    if (previous.embedding) {
+      chunk.embedding = previous.embedding;
+      restored++;
+    }
+  }
+  aiLogger.rag.indexProgress('resume', restored, chunks.length);
+  return restored;
+}
+
+/**
+ * Progress left behind by an interrupted index, so the UI can offer to
+ * resume rather than presenting the retry as starting over. `null` when
+ * there is nothing to resume.
+ */
+export async function getIndexResumePoint(
+  bookHash: string,
+): Promise<{ embedded: number; total: number } | null> {
+  const meta = await aiStore.getMeta(bookHash);
+  if (meta?.status !== 'partial') return null;
+  const embedded = meta.embeddedChunks ?? 0;
+  if (embedded <= 0 || meta.totalChunks <= 0) return null;
+  return { embedded, total: meta.totalChunks };
 }
 
 export async function hybridSearch(
@@ -213,6 +329,8 @@ export async function hybridSearch(
         embed({
           model: provider.getEmbeddingModel(),
           value: query,
+          // Retries are withRetry's job; see embedBatch for why.
+          maxRetries: 0,
         }),
       AI_TIMEOUTS.EMBEDDING_SINGLE,
       AI_RETRY_CONFIGS.EMBEDDING,

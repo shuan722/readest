@@ -9,6 +9,7 @@ import { initReplicaSync } from '@/services/sync/replicaSync';
 import { createSettingsCursorStore } from '@/services/sync/replicaCursorStore';
 import { startReplicaTransferIntegration } from '@/services/sync/replicaTransferIntegration';
 import { enableReplicaAutoPersist } from '@/services/sync/replicaPersist';
+import { isAnonymousBuild } from '@/services/environment';
 
 interface EnvContextType {
   envConfig: EnvConfigType;
@@ -23,14 +24,14 @@ export const EnvProvider = ({ children }: { children: ReactNode }) => {
 
   React.useEffect(() => {
     bootstrapReplicaAdapters();
-    enableReplicaAutoPersist(envConfig);
+    if (!isAnonymousBuild()) enableReplicaAutoPersist(envConfig);
     envConfig
       .getAppService()
       .then(async (service) => {
         setAppService(service);
         try {
           const settings = await service.loadSettings();
-          if (settings.replicaDeviceId) {
+          if (!isAnonymousBuild() && settings.replicaDeviceId) {
             const ctx = initReplicaSync({
               deviceId: settings.replicaDeviceId,
               cursorStore: createSettingsCursorStore(service),

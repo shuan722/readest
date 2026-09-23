@@ -2456,5 +2456,13 @@
   "Create New Tag": "புதிய குறிச்சொல் உருவாக்கவும்",
   "Tag name": "குறிச்சொல் பெயர்",
   "No tags yet": "இன்னும் குறிச்சொற்கள் இல்லை",
-  "Failed to save note. Please try again.": "குறிப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
+  "Failed to save note. Please try again.": "குறிப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  "Indexing failed": "அட்டவணைப்படுத்தல் தோல்வியடைந்தது",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% ஏற்கெனவே அட்டவணைப்படுத்தப்பட்டுள்ளது. மீண்டும் முயற்சிப்பது அங்கிருந்து தொடரும்.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "அரட்டைக்கு மட்டுமான இறுதிப்புள்ளி உட்பொதிவுகள் இல்லாமலும் செயல்படும். உட்பொதி மாதிரியை காலியாக விட்டு மீண்டும் முயற்சிக்கவும்.",
+  "Resume Indexing": "அட்டவணைப்படுத்தலைத் தொடரவும்",
+  "Retry Indexing": "அட்டவணைப்படுத்தலை மீண்டும் முயற்சிக்கவும்",
+  "Indexing Unfinished": "அட்டவணைப்படுத்தல் முழுமையடையவில்லை",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "அட்டவணைப்படுத்தும் முன் அமைப்புகளில் OpenAI-இணக்க API விசையை உள்ளமைக்கவும்",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% ஏற்கெனவே அட்டவணைப்படுத்தப்பட்டுள்ளது. அங்கிருந்து தொடரும்."
 }

@@ -3,6 +3,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useABSServerStore } from '@/store/absServerStore';
 import { backfillAbsCovers, syncAllAbsServers } from '@/services/audiobookshelf/librarySync';
 import { eventDispatcher } from '@/utils/event';
+import { isAnonymousBuild } from '@/services/environment';
 
 const AUTO_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
@@ -24,6 +25,7 @@ export function useABSSync() {
   }, [envConfig]);
 
   const checkABSServers = useCallback(async () => {
+    if (isAnonymousBuild()) return;
     if (!appService) return;
     if (isSyncingRef.current) return;
     // On a fresh boot nothing has hydrated useABSServerStore yet (no
@@ -59,7 +61,7 @@ export function useABSSync() {
 
   // Periodic background sync.
   useEffect(() => {
-    if (!appService) return;
+    if (!appService || isAnonymousBuild()) return;
     const intervalId = setInterval(() => {
       checkABSServers();
     }, AUTO_CHECK_INTERVAL_MS);

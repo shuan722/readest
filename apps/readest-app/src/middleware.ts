@@ -14,8 +14,45 @@ const corsOptions = {
   'Access-Control-Max-Age': '86400',
 };
 
+// Anonymous builds keep public helpers such as OPDS, translation and Edge TTS,
+// but do not expose account, cloud-storage, sharing, billing or server-backed
+// AI endpoints. Keeping this boundary in middleware also protects direct URLs
+// and stale clients that bypass the React settings UI.
+const anonymousDisabledApiPrefixes = [
+  '/api/ai/',
+  '/api/apple/',
+  '/api/google/',
+  '/api/hardcover/',
+  '/api/notion/',
+  '/api/share/',
+  '/api/stats/',
+  '/api/stripe/',
+  '/api/sync',
+  '/api/storage/',
+  '/api/send/',
+];
+
+const anonymousDisabledPages = ['/auth', '/user', '/subscription', '/s'];
+
 export function middleware(request: NextRequest) {
   const isApi = request.nextUrl.pathname.startsWith('/api/');
+  const isAnonymousBuild = process.env['NEXT_PUBLIC_ANONYMOUS_BUILD'] === 'true';
+
+  if (
+    isAnonymousBuild &&
+    ((isApi &&
+      anonymousDisabledApiPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix))) ||
+      (!isApi &&
+        anonymousDisabledPages.some(
+          (prefix) =>
+            request.nextUrl.pathname === prefix ||
+            request.nextUrl.pathname.startsWith(`${prefix}/`),
+        )))
+  ) {
+    if (isApi)
+      return NextResponse.json({ error: 'Unavailable in anonymous build' }, { status: 404 });
+    return NextResponse.redirect(new URL('/library', request.url));
+  }
 
   if (isApi) {
     const origin = request.headers.get('origin') ?? '';

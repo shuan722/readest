@@ -89,6 +89,11 @@ export class OpenRouterProvider implements AIProvider {
       if (!response.ok) {
         throw new Error(`Health check failed: ${response.status}`);
       }
+      const payload = (await response.json()) as { data?: OpenRouterModelInfo[] };
+      const models = Array.isArray(payload.data) ? payload.data : [];
+      if (models.length > 0 && !models.some((model) => model.id === modelId)) {
+        throw new Error(`Model not found: ${modelId}`);
+      }
       aiLogger.provider.init('openrouter', 'healthCheck success');
       return true;
     } catch (e) {

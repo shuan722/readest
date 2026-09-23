@@ -127,7 +127,8 @@ class AIStore {
 
   async isIndexed(bookHash: string): Promise<boolean> {
     const meta = await this.getMeta(bookHash);
-    return meta !== null && meta.totalChunks > 0;
+    // A 'partial' meta is a resume checkpoint, not a finished index.
+    return meta !== null && meta.status !== 'partial' && meta.totalChunks > 0;
   }
 
   async saveChunks(chunks: TextChunk[]): Promise<void> {
@@ -139,7 +140,17 @@ class AIStore {
       const store = tx.objectStore(CHUNKS_STORE);
       for (const chunk of chunks) store.put(chunk);
       tx.oncomplete = () => {
-        this.chunkCache.set(bookHash, chunks);
+        // Mirror the store's put semantics: chunks are saved section by
+        // section, so a save adds to what is already there rather than
+        // replacing it.
+        const cached = this.chunkCache.get(bookHash);
+        if (cached) {
+          const byId = new Map(cached.map((c) => [c.id, c]));
+          for (const chunk of chunks) byId.set(chunk.id, chunk);
+          this.chunkCache.set(bookHash, Array.from(byId.values()));
+        } else {
+          this.chunkCache.set(bookHash, chunks);
+        }
         resolve();
       };
       tx.onerror = () => {

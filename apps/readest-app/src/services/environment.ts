@@ -11,6 +11,9 @@ declare global {
 
 export const isTauriAppPlatform = () => process.env['NEXT_PUBLIC_APP_PLATFORM'] === 'tauri';
 export const isWebAppPlatform = () => process.env['NEXT_PUBLIC_APP_PLATFORM'] === 'web';
+/** Personal builds keep local-first features and anonymous web services, but
+ * never initialize Readest account, cloud-sync, billing, or telemetry paths. */
+export const isAnonymousBuild = () => process.env['NEXT_PUBLIC_ANONYMOUS_BUILD'] === 'true';
 export const hasCli = () => window.__READEST_CLI_ACCESS === true;
 export const isPWA = () => window.matchMedia('(display-mode: standalone)').matches;
 export const getBaseUrl = () =>

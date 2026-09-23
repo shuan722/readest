@@ -1,7 +1,57 @@
-const DEBUG = false;
+/**
+ * On by default, including release builds: a failing request that leaves no
+ * trace anywhere costs far more than the console noise. Silence it at runtime
+ * with `localStorage.setItem('readest-ai-debug', '0')`.
+ */
+function isDebugEnabled(): boolean {
+  try {
+    return globalThis.localStorage?.getItem('readest-ai-debug') !== '0';
+  } catch {
+    // Storage can be blocked; never let logging break the caller.
+    return true;
+  }
+}
+
 const PREFIX = '[AI]';
 
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
+
+type TauriLogModule = typeof import('@tauri-apps/plugin-log');
+let logModulePromise: Promise<TauriLogModule | null> | undefined;
+
+function getTauriLog(): Promise<TauriLogModule | null> {
+  if (!logModulePromise) {
+    const inTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+    logModulePromise = inTauri
+      ? import('@tauri-apps/plugin-log').catch(() => null)
+      : Promise.resolve(null);
+  }
+  return logModulePromise;
+}
+
+/**
+ * Mirror the line into the app's log file (`~/Library/Logs/<bundle id>/` on
+ * macOS). The console only exists while devtools are open, so without this a
+ * user-reported failure leaves nothing to read afterwards. Fire-and-forget:
+ * logging must never delay or break the caller. The Rust side filters at
+ * Info, so `debug` lines stay out of the file.
+ */
+function forwardToLogFile(level: LogLevel, line: string): void {
+  void getTauriLog().then((mod) => {
+    if (!mod) return;
+    const write =
+      level === 'error'
+        ? mod.error
+        : level === 'warn'
+          ? mod.warn
+          : level === 'debug'
+            ? mod.debug
+            : mod.info;
+    void write(line).catch(() => {
+      // A failed log write is not worth surfacing anywhere.
+    });
+  });
+}
 
 function formatData(data: unknown): string {
   if (data === undefined) return '';
@@ -16,10 +66,12 @@ function formatData(data: unknown): string {
 }
 
 function log(level: LogLevel, module: string, message: string, data?: unknown) {
-  if (!DEBUG) return;
+  if (!isDebugEnabled()) return;
   const timestamp = new Date().toISOString().split('T')[1]?.slice(0, 12);
   const prefix = `${PREFIX}[${timestamp}][${module}]`;
   const formatted = data !== undefined ? `${message} ${formatData(data)}` : message;
+
+  forwardToLogFile(level, `${prefix} ${formatted}`);
 
   switch (level) {
     case 'info':

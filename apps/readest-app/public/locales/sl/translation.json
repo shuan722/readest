@@ -2576,5 +2576,13 @@
   "Create New Tag": "Ustvari novo oznako",
   "Tag name": "Ime oznake",
   "No tags yet": "Še ni oznak",
-  "Failed to save note. Please try again.": "Zapiska ni bilo mogoče shraniti. Poskusite znova."
+  "Failed to save note. Please try again.": "Zapiska ni bilo mogoče shraniti. Poskusite znova.",
+  "Indexing failed": "Indeksiranje ni uspelo",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}} % je že indeksiranih. Ponovni poskus se nadaljuje od tam.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Končna točka samo za klepet lahko deluje brez vdelav. Pustite polje Model za vdelavo prazno in poskusite znova.",
+  "Resume Indexing": "Nadaljuj indeksiranje",
+  "Retry Indexing": "Znova poskusi indeksirati",
+  "Indexing Unfinished": "Indeksiranje ni dokončano",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Pred indeksiranjem v Nastavitvah nastavite z OpenAI združljiv API ključ",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}} % je že indeksiranih. Indeksiranje se nadaljuje od tam."
 }

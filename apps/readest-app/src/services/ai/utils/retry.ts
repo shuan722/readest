@@ -11,6 +11,28 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
   maxDelayMs: 10000,
 };
 
+/**
+ * Errors that will fail identically on every attempt: a rejected payload,
+ * a bad model id, a missing key. Retrying them only multiplies the wait
+ * before the user sees the real message, so surface them immediately.
+ */
+export function isNonRetryableError(error: Error): boolean {
+  const message = error.message.toLowerCase();
+  if (/\b(429|408|409|500|502|503|504)\b/.test(message)) return false;
+  return (
+    /\b(400|401|403|404|422)\b/.test(message) ||
+    message.includes('maximum request size') ||
+    message.includes('maximum context length') ||
+    message.includes('too many inputs') ||
+    message.includes("invalid 'input'") ||
+    message.includes('invalid input') ||
+    message.includes('invalid api key') ||
+    message.includes('unauthorized') ||
+    message.includes('not authenticated') ||
+    message.includes('model not found')
+  );
+}
+
 export async function withRetry<T>(
   fn: () => Promise<T>,
   options: Partial<RetryOptions> = {},
@@ -26,6 +48,8 @@ export async function withRetry<T>(
 
       // don't retry on abort
       if (lastError.name === 'AbortError') throw lastError;
+      // nor on deterministic rejections — the next attempt fails the same way
+      if (isNonRetryableError(lastError)) throw lastError;
 
       if (attempt < opts.maxRetries) {
         const delay = Math.min(opts.baseDelayMs * Math.pow(2, attempt), opts.maxDelayMs);

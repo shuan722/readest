@@ -407,7 +407,15 @@ export class TTSController extends EventTarget {
     if (await this.ttsWebClient.init()) {
       availableClients.push(this.ttsWebClient);
     }
-    this.ttsClient = availableClients[0] || this.ttsWebClient;
+    // Android's native TextToSpeech engine runs independently of the WebView
+    // and is kept alive by the native media foreground service. Prefer it as
+    // the default there so screen-off/background playback does not depend on
+    // WebView timers, network synthesis, or Edge's streaming connection.
+    const nativeClient = this.ttsNativeClient;
+    const preferNativeOnAndroid = this.appService?.isAndroidApp === true;
+    this.ttsClient =
+      (preferNativeOnAndroid && nativeClient?.initialized ? nativeClient : availableClients[0]) ||
+      this.ttsWebClient;
     const preferredClientName = TTSUtils.getPreferredClient();
     if (preferredClientName) {
       const preferredClient = availableClients.find(

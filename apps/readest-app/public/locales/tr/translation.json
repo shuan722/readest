@@ -2456,5 +2456,13 @@
   "Create New Tag": "Yeni Etiket Oluştur",
   "Tag name": "Etiket adı",
   "No tags yet": "Henüz etiket yok",
-  "Failed to save note. Please try again.": "Not kaydedilemedi. Lütfen tekrar deneyin."
+  "Failed to save note. Please try again.": "Not kaydedilemedi. Lütfen tekrar deneyin.",
+  "Indexing failed": "Dizinleme başarısız",
+  "{{percent}}% is already indexed. Retrying continues from there.": "%{{percent}} zaten dizinlendi. Yeniden denemek buradan devam eder.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Yalnızca sohbet uç noktası, gömme olmadan da çalışabilir. Gömme Modeli alanını boş bırakıp yeniden deneyin.",
+  "Resume Indexing": "Dizinlemeye Devam Et",
+  "Retry Indexing": "Dizinlemeyi Yeniden Dene",
+  "Indexing Unfinished": "Dizinleme Tamamlanmadı",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Dizinlemeden önce Ayarlar'da OpenAI uyumlu API anahtarınızı yapılandırın",
+  "{{percent}}% is already indexed. Continue from there.": "%{{percent}} zaten dizinlendi. Buradan devam edilecek."
 }

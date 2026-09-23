@@ -2516,5 +2516,13 @@
   "Create New Tag": "Crear nueva etiqueta",
   "Tag name": "Nombre de la etiqueta",
   "No tags yet": "Aún no hay etiquetas",
-  "Failed to save note. Please try again.": "No se pudo guardar la nota. Inténtalo de nuevo."
+  "Failed to save note. Please try again.": "No se pudo guardar la nota. Inténtalo de nuevo.",
+  "Indexing failed": "Error de indexación",
+  "{{percent}}% is already indexed. Retrying continues from there.": "El {{percent}} % ya está indexado. Al reintentar se continuará desde ahí.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Un endpoint solo de chat puede funcionar sin incrustaciones. Deja el modelo de incrustación en blanco y vuelve a intentarlo.",
+  "Resume Indexing": "Reanudar indexación",
+  "Retry Indexing": "Reintentar indexación",
+  "Indexing Unfinished": "Indexación sin terminar",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Configura tu clave API compatible con OpenAI en Configuraciones antes de indexar",
+  "{{percent}}% is already indexed. Continue from there.": "El {{percent}} % ya está indexado. Se continuará desde ahí."
 }

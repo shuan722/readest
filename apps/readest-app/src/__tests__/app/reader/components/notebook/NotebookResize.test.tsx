@@ -125,7 +125,13 @@ describe('Notebook resizing', () => {
 
     expect(flushNotebookDocument).toHaveBeenCalledWith('book-1');
     expect(useNotebookStore.getState().isNotebookVisible).toBe(false);
-    expect(screen.queryByRole('group', { name: 'Notebook' })).toBeNull();
+    // The panel stays mounted after closing so an in-flight AI generation is
+    // not aborted; display:none plus inert keep it out of view and out of the
+    // tab order. (jsdom applies no stylesheet, so assert the contract rather
+    // than querying by visibility.)
+    const panel = screen.getByRole('group', { name: 'Notebook' });
+    expect(panel.className).toContain('hidden');
+    expect(panel.hasAttribute('inert')).toBe(true);
   });
 
   test('keeps an unpinned Notebook open while its width changes', () => {

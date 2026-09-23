@@ -59,6 +59,10 @@ const Notebook: React.FC = () => {
   const isMobile =
     appService?.isMobile === true || window.innerWidth < 640 || window.innerHeight < 640;
   const [isFullHeightInMobile, setIsFullHeightInMobile] = useState(isMobile);
+  // Keeping the AI panel mounted is what lets a generation outlive a tab
+  // switch, but mounting it for readers who never open it would cost a
+  // runtime and an index lookup per book. Mount on first use, then keep it.
+  const [aiPanelUsed, setAiPanelUsed] = useState(notebookActiveTab === 'ai');
 
   const hideNotebook = useCallback(() => {
     if (sideBarBookKey) void flushNotebookDocument(sideBarBookKey);
@@ -80,6 +84,10 @@ const Notebook: React.FC = () => {
   }, [hideNotebook, isNotebookPinned, isNotebookVisible]);
 
   useShortcuts({ onEscape: handleHideNotebookShortcut }, [handleHideNotebookShortcut]);
+
+  useEffect(() => {
+    if (notebookActiveTab === 'ai') setAiPanelUsed(true);
+  }, [notebookActiveTab]);
 
   useEffect(() => {
     if (isNotebookVisible) {
@@ -178,9 +186,9 @@ const Notebook: React.FC = () => {
   if (!bookData?.bookDoc) return null;
   const languageDir = getBookDirFromLanguage(bookData.bookDoc.metadata.language);
 
-  return isNotebookVisible ? (
+  return (
     <>
-      {!isNotebookPinned && (
+      {isNotebookVisible && !isNotebookPinned && (
         <Overlay
           className={clsx('z-[45]', viewSettings?.isEink ? '' : 'bg-black/50 sm:bg-black/20')}
           onDismiss={hideNotebook}
@@ -188,8 +196,13 @@ const Notebook: React.FC = () => {
       )}
       <div
         ref={notebookRef}
+        // Stays mounted while hidden so a running AI generation survives the
+        // panel being closed. `hidden` is display:none, so it costs no layout
+        // space and its contents stay out of the tab order.
+        inert={!isNotebookVisible}
         className={clsx(
           'notebook-container right-0 flex min-w-60 select-none flex-col',
+          !isNotebookVisible && 'hidden',
           'full-height font-sans text-base font-normal transition-[padding-top] duration-300 sm:text-sm',
           viewSettings?.isEink ? 'bg-base-100' : 'bg-base-200',
           appService?.hasRoundedWindow && 'rounded-window-top-right rounded-window-bottom-right',
@@ -256,11 +269,17 @@ const Notebook: React.FC = () => {
             handleTogglePin={handleTogglePin}
           />
         </div>
-        {notebookActiveTab === 'ai' ? (
-          <div className='flex min-h-0 flex-1 flex-col'>
+        {/* The AI panel owns the chat runtime, so unmounting it aborts an
+            in-flight generation and throws away the text streamed so far.
+            Hide it instead of swapping it out. */}
+        {aiPanelUsed && (
+          <div
+            className={clsx('flex min-h-0 flex-1 flex-col', notebookActiveTab !== 'ai' && 'hidden')}
+          >
             <AIAssistant key={activeConversationId ?? 'new'} bookKey={sideBarBookKey} />
           </div>
-        ) : (
+        )}
+        {notebookActiveTab !== 'ai' && (
           <NotebookEditor
             bookKey={sideBarBookKey}
             handleOpenAnnotations={handleOpenAnnotations}
@@ -276,7 +295,7 @@ const Notebook: React.FC = () => {
         </div>
       </div>
     </>
-  ) : null;
+  );
 };
 
 export default Notebook;

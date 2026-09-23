@@ -2576,5 +2576,13 @@
   "Create New Tag": "Створити новий теґ",
   "Tag name": "Назва теґу",
   "No tags yet": "Теґів поки немає",
-  "Failed to save note. Please try again.": "Не вдалося зберегти нотатку. Спробуйте ще раз."
+  "Failed to save note. Please try again.": "Не вдалося зберегти нотатку. Спробуйте ще раз.",
+  "Indexing failed": "Не вдалося проіндексувати",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}} % уже проіндексовано. Повтор продовжить із цього місця.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Кінцева точка лише для чату може працювати без вбудовувань. Залиште модель вбудовування порожньою та повторіть спробу.",
+  "Resume Indexing": "Продовжити індексацію",
+  "Retry Indexing": "Повторити індексацію",
+  "Indexing Unfinished": "Індексацію не завершено",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Перед індексацією вкажіть сумісний з OpenAI API-ключ у налаштуваннях",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}} % уже проіндексовано. Індексація продовжиться з цього місця."
 }

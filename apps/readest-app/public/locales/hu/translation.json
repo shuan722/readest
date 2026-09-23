@@ -2456,5 +2456,13 @@
   "Create New Tag": "Új címke létrehozása",
   "Tag name": "Címke neve",
   "No tags yet": "Még nincsenek címkék",
-  "Failed to save note. Please try again.": "A jegyzet mentése sikertelen. Kérjük, próbáld újra."
+  "Failed to save note. Please try again.": "A jegyzet mentése sikertelen. Kérjük, próbáld újra.",
+  "Indexing failed": "Az indexelés sikertelen",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% már indexelve van. Az újrapróbálkozás onnan folytatja.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "A csak csevegésre képes végpont beágyazások nélkül is működik. Hagyja üresen a Beágyazási modell mezőt, és próbálja újra.",
+  "Resume Indexing": "Indexelés folytatása",
+  "Retry Indexing": "Indexelés újrapróbálása",
+  "Indexing Unfinished": "Az indexelés befejezetlen",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Indexelés előtt állítsa be az OpenAI-kompatibilis API-kulcsot a Beállításokban",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% már indexelve van. Az indexelés onnan folytatódik."
 }

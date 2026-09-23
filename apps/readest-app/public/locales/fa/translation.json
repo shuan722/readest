@@ -2456,5 +2456,13 @@
   "Create New Tag": "ایجاد برچسب جدید",
   "Tag name": "نام برچسب",
   "No tags yet": "هنوز برچسبی وجود ندارد",
-  "Failed to save note. Please try again.": "ذخیرهٔ یادداشت ناموفق بود. لطفاً دوباره تلاش کنید."
+  "Failed to save note. Please try again.": "ذخیرهٔ یادداشت ناموفق بود. لطفاً دوباره تلاش کنید.",
+  "Indexing failed": "فهرست‌بندی ناموفق بود",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% قبلاً فهرست‌بندی شده است. تلاش مجدد از همان‌جا ادامه می‌یابد.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "نقطه پایانی فقط گفتگو می‌تواند بدون جاسازی کار کند. مدل جاسازی را خالی بگذارید و دوباره تلاش کنید.",
+  "Resume Indexing": "ادامه فهرست‌بندی",
+  "Retry Indexing": "تلاش مجدد فهرست‌بندی",
+  "Indexing Unfinished": "فهرست‌بندی ناتمام",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "پیش از فهرست‌بندی، کلید API سازگار با OpenAI خود را در تنظیمات پیکربندی کنید",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% قبلاً فهرست‌بندی شده است. از همان‌جا ادامه می‌یابد."
 }

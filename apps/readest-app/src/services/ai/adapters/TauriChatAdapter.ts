@@ -120,6 +120,7 @@ export function createTauriAdapter(getOptions: () => TauriAdapterOptions): ChatM
             spoilerBoundPosition: settings.spoilerProtection ? currentPage : undefined,
           });
           const systemPrompt = buildReedySystemPrompt(bookTitle, authorName, currentPage);
+          const sink = createStreamErrorSink();
           const result = streamText({
             model: provider.getModel(),
             system: systemPrompt,
@@ -127,11 +128,13 @@ export function createTauriAdapter(getOptions: () => TauriAdapterOptions): ChatM
             tools: { lookupPassage: tool },
             stopWhen: stepCountIs(3),
             abortSignal,
+            onError: sink.onError,
           });
           for await (const chunk of result.textStream) {
             text += chunk;
             yield { content: [{ type: 'text', text }] };
           }
+          await assertStreamProducedText(text, result, sink);
         } else {
           // Legacy IDB path: chunks go into the system prompt before the
           // first stream tick; no tool calls.
@@ -162,18 +165,25 @@ export function createTauriAdapter(getOptions: () => TauriAdapterOptions): ChatM
               text += chunk;
               yield { content: [{ type: 'text', text }] };
             }
+            if (!text) {
+              aiLogger.chat.error('empty response from /api/ai/chat');
+              throw new Error('The model finished without returning any text.');
+            }
           } else {
             const provider = getAIProvider(settings);
+            const sink = createStreamErrorSink();
             const result = streamText({
               model: provider.getModel(),
               system: systemPrompt,
               messages: aiMessages,
               abortSignal,
+              onError: sink.onError,
             });
             for await (const chunk of result.textStream) {
               text += chunk;
               yield { content: [{ type: 'text', text }] };
             }
+            await assertStreamProducedText(text, result, sink);
           }
         }
 
@@ -186,6 +196,53 @@ export function createTauriAdapter(getOptions: () => TauriAdapterOptions): ChatM
       }
     },
   };
+}
+
+/**
+ * `streamText` deliberately swallows stream errors instead of rejecting, and
+ * reports them only through `onError`. Without this sink a 429 or an auth
+ * failure ends the stream normally and the turn completes with an empty
+ * bubble — the real message ("Rate limit exceeded", …) is lost.
+ */
+function createStreamErrorSink() {
+  let captured: Error | undefined;
+  return {
+    onError: ({ error }: { error: unknown }) => {
+      captured = error instanceof Error ? error : new Error(String(error));
+    },
+    get error(): Error | undefined {
+      return captured;
+    },
+  };
+}
+
+/**
+ * `textStream` only carries text deltas. A model that answers entirely in
+ * reasoning parts, gets cut off, or is filtered upstream ends the stream
+ * having emitted nothing — the turn then completes "successfully" with an
+ * empty bubble and no explanation. Surface it as the failure it is.
+ */
+async function assertStreamProducedText(
+  text: string,
+  result: { finishReason: PromiseLike<string>; usage: PromiseLike<unknown> },
+  sink?: { error?: Error },
+): Promise<void> {
+  if (sink?.error) {
+    aiLogger.chat.error(sink.error.message);
+    throw sink.error;
+  }
+  if (text.length > 0) return;
+  const [finishReason, usage] = await Promise.all([
+    Promise.resolve(result.finishReason).catch(() => 'unknown'),
+    Promise.resolve(result.usage).catch(() => undefined),
+  ]);
+  aiLogger.chat.error(
+    `empty response (finishReason: ${finishReason}, usage: ${JSON.stringify(usage)})`,
+  );
+  throw new Error(
+    `The model finished without returning any text (finish reason: ${finishReason}). ` +
+      `Reasoning-only models emit no assistant text; try another chat model.`,
+  );
 }
 
 function buildReedySystemPrompt(

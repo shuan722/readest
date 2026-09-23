@@ -2456,5 +2456,13 @@
   "Create New Tag": "ახალი ტეგის შექმნა",
   "Tag name": "ტეგის სახელი",
   "No tags yet": "ტეგები ჯერ არ არის",
-  "Failed to save note. Please try again.": "ჩანაწერის შენახვა ვერ მოხერხდა. სცადეთ ხელახლა."
+  "Failed to save note. Please try again.": "ჩანაწერის შენახვა ვერ მოხერხდა. სცადეთ ხელახლა.",
+  "Indexing failed": "ინდექსირება ვერ მოხერხდა",
+  "{{percent}}% is already indexed. Retrying continues from there.": "{{percent}}% უკვე ინდექსირებულია. ხელახლა ცდა გაგრძელდება იქიდან.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "მხოლოდ ჩატის საბოლოო წერტილს შეუძლია მუშაობა ჩაშენებების გარეშე. დატოვეთ ჩაშენების მოდელი ცარიელი და სცადეთ ხელახლა.",
+  "Resume Indexing": "ინდექსირების გაგრძელება",
+  "Retry Indexing": "ინდექსირების ხელახლა ცდა",
+  "Indexing Unfinished": "ინდექსირება დაუსრულებელია",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "ინდექსირებამდე დააკონფიგურირეთ OpenAI-თავსებადი API გასაღები პარამეტრებში",
+  "{{percent}}% is already indexed. Continue from there.": "{{percent}}% უკვე ინდექსირებულია. გაგრძელდება იქიდან."
 }

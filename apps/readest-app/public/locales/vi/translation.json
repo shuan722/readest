@@ -2396,5 +2396,13 @@
   "Create New Tag": "Tạo thẻ mới",
   "Tag name": "Tên thẻ",
   "No tags yet": "Chưa có thẻ nào",
-  "Failed to save note. Please try again.": "Không thể lưu ghi chú. Vui lòng thử lại."
+  "Failed to save note. Please try again.": "Không thể lưu ghi chú. Vui lòng thử lại.",
+  "Indexing failed": "Lập chỉ mục thất bại",
+  "{{percent}}% is already indexed. Retrying continues from there.": "Đã lập chỉ mục {{percent}}%. Thử lại sẽ tiếp tục từ đó.",
+  "A chat-only endpoint can work without embeddings. Leave Embedding Model blank and retry.": "Điểm cuối chỉ hỗ trợ trò chuyện vẫn hoạt động mà không cần nhúng. Để trống Mô hình nhúng rồi thử lại.",
+  "Resume Indexing": "Tiếp tục lập chỉ mục",
+  "Retry Indexing": "Thử lập chỉ mục lại",
+  "Indexing Unfinished": "Lập chỉ mục chưa hoàn tất",
+  "Configure your OpenAI-compatible API key in Settings before indexing": "Cấu hình khóa API tương thích OpenAI trong Cài đặt trước khi lập chỉ mục",
+  "{{percent}}% is already indexed. Continue from there.": "Đã lập chỉ mục {{percent}}%. Sẽ tiếp tục từ đó."
 }
